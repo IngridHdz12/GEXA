@@ -201,7 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                         child: StreamBuilder<DatabaseEvent>(
                           stream: FirebaseDatabase.instance
-                          .ref('sensor_gas/$id/valor')
+                          .ref('usuarios/$uid/$id/valor')
                           // 'usuarios/{idusuario}/$id/valor'
                           .onValue,
                           builder: (context, valorSnapshot) {
@@ -353,13 +353,7 @@ Widget _buildSensorCard(
             Row(
   mainAxisAlignment: MainAxisAlignment.spaceBetween,
   children: [
-    Text(
-      'Nivel: $gasLevel ppm',
-      style: TextStyle(
-        color: isAlert ? Colors.red : Colors.black87,
-        fontWeight: FontWeight.w600,
-      ),
-    ),
+    
     Row(
       children: [
         Icon(
