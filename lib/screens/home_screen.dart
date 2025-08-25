@@ -31,24 +31,8 @@ class _HomeScreenState extends State<HomeScreen> {
     // Inicializa notificaciones locales y comienza a escuchar nivel crítico
     NotificationsService.initialize();
 
-    // Cambia 'sensor123' por el ID real de tu sensor
-    escucharNivelGasCritico('sensor123');
   }
 
-  void escucharNivelGasCritico(String sensorId) {
-    final ref = FirebaseDatabase.instance.ref('sensores/$sensorId/nivel_gas');
-    ref.onValue.listen((event) {
-      final valor = event.snapshot.value;
-      if (valor != null && valor is num) {
-        if (valor >= 300) {
-          NotificationsService.showNotification(
-            '⚠️ Alerta de Gas Crítico',
-            'Nivel detectado: $valor ppm',
-          );
-        }
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -177,54 +161,61 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 
                 Expanded(
-                  child: ListView(
-                    padding: EdgeInsets.only(top: 80.0),
-                    children: sensoresMap.entries.map((entry) {
-                      final id = entry.key;
-                      final datos = Map<String, dynamic>.from(entry.value);
-                      final nombre = datos['nombre'] ?? 'Sensor $id';
-                      final ubicacion = datos['ubicacion'] ?? 'Sin ubicación';
-                      final double batteryLevel = (datos['battery'] ?? 100).toDouble();                      
-                      final umbral = datos['umbral'] ?? 300;
-                      final estado = datos['estado'] ?? 'NORMAL';
-                      final isActive = estado != 'DESCONECTADO';
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.pushNamed(
-                            context,
-                            '/sensor_detail',
-                            arguments: {
-                              'sensorId': id,
-                              'datos': datos,
-                            },
-                          );
-                        },
-                        child: StreamBuilder<DatabaseEvent>(
-                          stream: FirebaseDatabase.instance
-                          .ref('usuarios/$uid/$id/valor')
-                          // 'usuarios/{idusuario}/$id/valor'
-                          .onValue,
-                          builder: (context, valorSnapshot) {
-                            final valor = valorSnapshot.data?.snapshot.value ?? 0;
-                            
-                            return _buildSensorCard(
-                              context,
-                              name: nombre,
-                              location: ubicacion,
-                              gasLevel: valor is int ? valor : int.tryParse(valor.toString()) ?? 0,
-                              threshold: umbral,
-                              isActive: isActive,
-                              sensorId: id,
-                              batteryLevel: batteryLevel,
-                            );
-                            
-                          },
-                          
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
+  child: ListView(
+    padding: const EdgeInsets.only(top: 80.0),
+    children: sensoresMap.keys.map((id) {
+      return StreamBuilder<DatabaseEvent>(
+        stream: FirebaseDatabase.instance
+            .ref('usuarios/$uid/sensores/$id')
+            .onValue,
+        builder: (context, snapshot) {
+          if (snapshot.hasData && snapshot.data!.snapshot.value != null) {
+            final datos = Map<String, dynamic>.from(snapshot.data!.snapshot.value as Map);
+
+            // Variables directamente desde Firebase
+            final nombre = datos['nombre'] ?? 'Sensor $id';
+            final ubicacion = datos['ubicacion'] ?? 'Sin ubicación';
+            final double batteryLevel = (datos['battery'] ?? 100).toDouble();
+            final umbral = datos['umbral'] ?? 300;
+            final estado = datos['estado'] ?? 'NORMAL';
+            final isActive = estado != 'DESCONECTADO';
+
+            // gasValue también desde Firebase
+            final valor = datos['valor'] ?? 0;
+            final int gasValue = valor is int ? valor : int.tryParse(valor.toString()) ?? 0;
+
+            return GestureDetector(
+              onTap: () {
+                Navigator.pushNamed(
+                  context,
+                  '/sensor_detail',
+                  arguments: {
+                    'sensorId': id,
+                    'datos': datos,
+                  },
+                );
+              },
+              child: _buildSensorCard(
+                context,
+                name: nombre,
+                location: ubicacion,
+                gasLevel: gasValue,
+                threshold: umbral,
+                isActive: isActive,
+                sensorId: id,
+                batteryLevel: batteryLevel,
+              ),
+            );
+          }
+
+          // Mientras carga o no hay datos
+          return const Center(child: CircularProgressIndicator());
+        },
+      );
+    }).toList(),
+  ),
+),
+
                 const SizedBox(height: 16),
                 Center(
   child: ElevatedButton(
