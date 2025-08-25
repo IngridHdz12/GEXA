@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "1016590301594",
+    "firebase_url": "https://gexa-sensores-app-default-rtdb.firebaseio.com",
+    "project_id": "gexa-sensores-app",
+    "storage_bucket": "gexa-sensores-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1016590301594:android:e693804562fed5afe92223",
+        "android_client_info": {
+          "package_name": "com.example.gexa"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9yZ58HHb0qNk-_9eG4sWTs38HW4c4fPw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
