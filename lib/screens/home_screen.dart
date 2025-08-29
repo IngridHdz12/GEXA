@@ -260,6 +260,7 @@ Widget _buildSensorCard(
   required bool isActive,
   required String sensorId,
   required double batteryLevel,
+  
 }) {
   final percentage = isActive ? (gasLevel / threshold).clamp(0.0, 1.0) : 0.0;
   final isAlert = percentage > 0.7;
@@ -318,12 +319,13 @@ Widget _buildSensorCard(
                             ),
                             onPressed: () async {
                               Navigator.pop(ctx);
+                              final uid = FirebaseAuth.instance.currentUser!.uid;
                               await FirebaseDatabase.instance
-                                  .ref('sensor_gas')
+                                  .ref('usuarios/$uid/sensores/$sensorId')
                                   .child(sensorId)
                                   .remove();
                               await FirebaseDatabase.instance
-                                  .ref('sensores')
+                                  .ref('sensor_gas/$sensorId')
                                   .child(sensorId)
                                   .remove();
                             },
