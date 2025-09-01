@@ -320,14 +320,23 @@ Widget _buildSensorCard(
                             onPressed: () async {
                               Navigator.pop(ctx);
                               final uid = FirebaseAuth.instance.currentUser!.uid;
-                              await FirebaseDatabase.instance
-                                  .ref('usuarios/$uid/sensores/$sensorId')
-                                  .child(sensorId)
-                                  .remove();
-                              await FirebaseDatabase.instance
-                                  .ref('sensor_gas/$sensorId')
-                                  .child(sensorId)
-                                  .remove();
+
+                              print("Eliminando usuarios/$uid/sensores/$sensorId");
+                              print("Eliminando sensor_gas/$sensorId");
+
+                              try {
+                                await FirebaseDatabase.instance
+                                    .ref('usuarios/$uid/sensores/$sensorId')
+                                    .remove();
+
+                                await FirebaseDatabase.instance
+                                    .ref('sensor_gas/$sensorId')
+                                    .remove();
+
+                                print("✅ Sensor eliminado correctamente");
+                              } catch (e) {
+                                print("❌ Error al eliminar: $e");
+                              }
                             },
                           ),
                         ],

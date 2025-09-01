@@ -39,6 +39,7 @@ class _AddSensorScreenState extends State<AddSensorScreen> {
       final uid = FirebaseAuth.instance.currentUser!.uid;
       final sensorRef = FirebaseDatabase.instance.ref('usuarios/$uid/sensores/$_selectedSensorId');
       final pendingRef = FirebaseDatabase.instance.ref('sensores_pendientes/$_selectedSensorId');
+      final globalRef = FirebaseDatabase.instance.ref('sensor_gas/$_selectedSensorId');
 
       // Obtener datos previos del sensor
       final snapshot = await pendingRef.get();
@@ -53,6 +54,13 @@ class _AddSensorScreenState extends State<AddSensorScreen> {
 
       // Guardar en ruta del usuario
       await sensorRef.set(datosSensor);
+
+      // Guardar en la ruta global SIN borrar otros campos → usar update()
+    await globalRef.update({
+      'userId': uid,
+      'nombre': _nombre,
+      'ubicacion': _ubicacion,
+    });
 
       // Eliminar de la lista de sensores pendientes
       await pendingRef.remove();
