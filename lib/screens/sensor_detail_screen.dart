@@ -66,7 +66,7 @@ class _SensorDetailScreenState extends State<SensorDetailScreen> {
           final datos = Map<String, dynamic>.from(snapshot.data!.snapshot.value as Map);
           final nombre = datos['nombre'] ?? 'Desconocido';
           final ubicacion = datos['ubicacion'] ?? 'Sin ubicación';
-          final umbral = datos['umbral'] ?? 300;
+          final umbral = datos['umbral'] ?? 1795;
 
           return StreamBuilder<DatabaseEvent>(
             stream: sensorGasRef.onValue,

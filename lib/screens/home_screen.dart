@@ -170,19 +170,29 @@ class _HomeScreenState extends State<HomeScreen> {
             .onValue,
         builder: (context, snapshot) {
           if (snapshot.hasData && snapshot.data!.snapshot.value != null) {
-            final datos = Map<String, dynamic>.from(snapshot.data!.snapshot.value as Map);
+            final datos = Map<String, dynamic>.from(snapshot.data !.snapshot.value as Map);
 
             // Variables directamente desde Firebase
             final nombre = datos['nombre'] ?? 'Sensor $id';
             final ubicacion = datos['ubicacion'] ?? 'Sin ubicación';
-            final double batteryLevel = (datos['battery'] ?? 100).toDouble();
-            final umbral = datos['umbral'] ?? 300;
+            final double batteryVoltage = 3.92;
+            final umbral = datos['umbral'] ?? 1795;
             final estado = datos['estado'] ?? 'NORMAL';
             final isActive = estado != 'DESCONECTADO';
 
             // gasValue también desde Firebase
             final valor = datos['valor'] ?? 0;
             final int gasValue = valor is int ? valor : int.tryParse(valor.toString()) ?? 0;
+
+            // bateria
+            // --- Conversión de voltaje a porcentaje ---
+            double minVolt = 3.0;
+            double maxVolt = 4.2;
+            double batteryPercent = ((batteryVoltage - minVolt) / (maxVolt - minVolt)) * 100;
+
+            // Limitar entre 0 y 100
+            if (batteryPercent > 100) batteryPercent = 100;
+            if (batteryPercent < 0) batteryPercent = 0;
 
             return GestureDetector(
               onTap: () {
@@ -203,7 +213,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 threshold: umbral,
                 isActive: isActive,
                 sensorId: id,
-                batteryLevel: batteryLevel,
+                batteryLevel: batteryPercent,
               ),
             );
           }
@@ -405,10 +415,7 @@ Widget _buildSensorCard(
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  Text(
-                    'Umbral: $threshold ppm',
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
+                  
                 ],
               ),
             ] else
