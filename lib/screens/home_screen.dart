@@ -304,57 +304,7 @@ Widget _buildSensorCard(
                     color: isActive ? Colors.green[800] : Colors.grey[700],
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  tooltip: 'Eliminar sensor',
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (ctx) => AlertDialog(
-                        title: const Text('Confirmar eliminación'),
-                        content: Text('¿Seguro que quieres eliminar "$name"?'),
-                        actions: [
-                          TextButton(
-                            child: const Text('Cancelar'),
-                            onPressed: () => Navigator.pop(ctx),
-                          ),
-                          TextButton(
-                            child: const Text(
-                              'Eliminar',
-                              style: TextStyle(color: Colors.red),
-                            ),
-                            onPressed: () async {
-                              Navigator.pop(ctx);
-                              final uid = FirebaseAuth.instance.currentUser!.uid;
-
-                              print("Eliminando usuarios/$uid/sensores/$sensorId");
-                              print("Eliminando sensor_gas/$sensorId");
-
-                              try {
-                                await FirebaseDatabase.instance
-                                    .ref('usuarios/$uid/sensores/$sensorId')
-                                    .remove();
-
-                                await FirebaseDatabase.instance
-                                    .ref('sensor_gas/$sensorId')
-                                    .remove();
-
-                                print("✅ Sensor eliminado correctamente");
-                              } catch (e) {
-                                print("❌ Error al eliminar: $e");
-                              }
-                            },
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-
-
-
-
-
+                
               ],
             ),
 
