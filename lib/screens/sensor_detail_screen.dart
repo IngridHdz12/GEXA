@@ -15,7 +15,7 @@ class SensorDetailScreen extends StatefulWidget {
 
 class _SensorDetailScreenState extends State<SensorDetailScreen> {
   bool _notified = false;
-  bool _gasChanged = false;
+  //bool _gasChanged = false;
 
   void _mostrarNotificacion(int gasLevel) async {
     const androidDetails = AndroidNotificationDetails(
