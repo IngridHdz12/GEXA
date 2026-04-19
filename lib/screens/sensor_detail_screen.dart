@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_animate/flutter_animate.dart'; // opcional para animaciones extra
+import 'package:flutter_animate/flutter_animate.dart';
 import '../main.dart';
 
 class SensorDetailScreen extends StatefulWidget {
@@ -15,7 +15,6 @@ class SensorDetailScreen extends StatefulWidget {
 
 class _SensorDetailScreenState extends State<SensorDetailScreen> {
   bool _notified = false;
-  bool _gasChanged = false;
 
   void _mostrarNotificacion(int gasLevel) async {
     const androidDetails = AndroidNotificationDetails(
@@ -37,6 +36,47 @@ class _SensorDetailScreenState extends State<SensorDetailScreen> {
     );
   }
 
+  // --- NUEVA LÓGICA DE ELIMINACIÓN ---
+  void _confirmarEliminacion(BuildContext context, String nombre, String uid, String sensorId) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Desvincular Dispositivo'),
+        content: Text('¿Estás seguro de que quieres eliminar "$nombre"? El dispositivo se desconectará de tu Wi-Fi y volverá a su modo de configuración de fábrica.'),
+        actions: [
+          TextButton(
+            child: const Text('Cancelar', style: TextStyle(color: Colors.grey)),
+            onPressed: () => Navigator.pop(ctx),
+          ),
+          TextButton(
+            child: const Text('Desvincular', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+            onPressed: () async {
+              // 1. Cerramos el diálogo
+              Navigator.pop(ctx);
+              // 2. Salimos de la pantalla de detalles hacia el Home
+              Navigator.pop(context); 
+
+              try {
+                // 3. Borramos los datos de Firebase (Esto disparará el reinicio en el ESP32)
+                await FirebaseDatabase.instance.ref('usuarios/$uid/sensores/$sensorId').remove();
+                await FirebaseDatabase.instance.ref('sensor_gas/$sensorId').remove();
+                
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('El sensor "$nombre" ha sido desvinculado exitosamente.')),
+                );
+              } catch (e) {
+                debugPrint("Error al eliminar: $e");
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Hubo un error al intentar desvincular el sensor.')),
+                );
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final Map<String, dynamic> args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
@@ -51,16 +91,17 @@ class _SensorDetailScreenState extends State<SensorDetailScreen> {
       appBar: AppBar(
         title: Text(
           'Detalles del Sensor',
-          style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
-          selectionColor: const Color(0xFFfbf8ef),
+          style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.white),
         ),
+        iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: const Color(0xFF00698F),
       ),
       body: StreamBuilder<DatabaseEvent>(
         stream: sensorRef.onValue,
         builder: (context, snapshot) {
           if (!snapshot.hasData || snapshot.data!.snapshot.value == null) {
-            return const Center(child: Text('Sensor no encontrado.'));
+            // Si el sensor se acaba de borrar, se mostrará esto por un instante antes de hacer el pop()
+            return const Center(child: CircularProgressIndicator());
           }
 
           final datos = Map<String, dynamic>.from(snapshot.data!.snapshot.value as Map);
@@ -72,7 +113,7 @@ class _SensorDetailScreenState extends State<SensorDetailScreen> {
             stream: sensorGasRef.onValue,
             builder: (context, gasSnapshot) {
               if (!gasSnapshot.hasData || gasSnapshot.data!.snapshot.value == null) {
-                return const Center(child: Text('Cargando datos de gas...'));
+                return const Center(child: CircularProgressIndicator());
               }
 
               final gasLevel = (gasSnapshot.data!.snapshot.value as Map)['valor'] as int? ?? 0;
@@ -155,9 +196,32 @@ class _SensorDetailScreenState extends State<SensorDetailScreen> {
                       child: Icon(
                         isAlert ? Icons.warning_amber : Icons.check_circle,
                         color: isAlert ? Colors.red : Colors.green,
-                        size: 64,
+                        size: 80,
                       ).animate().fadeIn().scale(),
                     ),
+                    const Spacer(),
+                    
+                    // --- BOTÓN DE ELIMINAR / DESVINCULAR ---
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.red,
+                          side: const BorderSide(color: Colors.red),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        icon: const Icon(Icons.delete_outline),
+                        label: Text(
+                          'Desvincular Dispositivo',
+                          style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        onPressed: () => _confirmarEliminacion(context, nombre, uid, sensorId),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
                   ],
                 ),
               );
