@@ -186,6 +186,9 @@ class _AddSensorScreenState extends State<AddSensorScreen> {
       datosSensor['nombre'] = _nombre;
       datosSensor['ubicacion'] = _ubicacion;
 
+      datosSensor.remove('registrado'); 
+      // o se puede usar: datosSensor['registrado'] = true; depende de cómo se quiera manejar el estado del sensor
+
       await sensorRef.set(datosSensor);
       await globalRef.update({
         'userId': uid,
