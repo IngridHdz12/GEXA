@@ -1,9 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
-import 'package:firebase_database/firebase_database.dart';
-
-
 
 class NotificationsService {
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =

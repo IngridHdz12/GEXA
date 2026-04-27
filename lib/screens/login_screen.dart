@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gexa/custom_clippers.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'auth_service.dart';
 import 'home_screen.dart';
 import 'register_screen.dart';
-import 'dart:ui' as ui;
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

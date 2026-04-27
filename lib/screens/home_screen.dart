@@ -2,14 +2,11 @@ import 'package:flutter/material.dart';
 import '../services/fcm_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:gexa/custom_clippers.dart';
 import 'auth_service.dart';
 import 'login_screen.dart';
 import 'add_sensor_screen.dart'; // Nueva pantalla para agregar sensores
 import 'package:animate_do/animate_do.dart'; // nueva librería para animaciones
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import '../main.dart';
 import '../notifications_service.dart'; // Asegúrate de importar tu NotificationsService
 
 class HomeScreen extends StatefulWidget {
@@ -274,8 +271,7 @@ Widget _buildSensorCard(
 }) {
   final percentage = isActive ? (gasLevel / threshold).clamp(0.0, 1.0) : 0.0;
   final isAlert = percentage > 0.7;
-  bool _notified = false;
-
+  
   return ZoomIn(
     duration: const Duration(milliseconds: 500),
     child: Card(
@@ -308,57 +304,7 @@ Widget _buildSensorCard(
                     color: isActive ? Colors.green[800] : Colors.grey[700],
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  tooltip: 'Eliminar sensor',
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (ctx) => AlertDialog(
-                        title: const Text('Confirmar eliminación'),
-                        content: Text('¿Seguro que quieres eliminar "$name"?'),
-                        actions: [
-                          TextButton(
-                            child: const Text('Cancelar'),
-                            onPressed: () => Navigator.pop(ctx),
-                          ),
-                          TextButton(
-                            child: const Text(
-                              'Eliminar',
-                              style: TextStyle(color: Colors.red),
-                            ),
-                            onPressed: () async {
-                              Navigator.pop(ctx);
-                              final uid = FirebaseAuth.instance.currentUser!.uid;
-
-                              print("Eliminando usuarios/$uid/sensores/$sensorId");
-                              print("Eliminando sensor_gas/$sensorId");
-
-                              try {
-                                await FirebaseDatabase.instance
-                                    .ref('usuarios/$uid/sensores/$sensorId')
-                                    .remove();
-
-                                await FirebaseDatabase.instance
-                                    .ref('sensor_gas/$sensorId')
-                                    .remove();
-
-                                print("✅ Sensor eliminado correctamente");
-                              } catch (e) {
-                                print("❌ Error al eliminar: $e");
-                              }
-                            },
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-
-
-
-
-
+                
               ],
             ),
 

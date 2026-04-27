@@ -1,21 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'notifications_service.dart'; // Aquí está la configuración del canal
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
-import 'screens/register_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/sensor_detail_screen.dart';
 import 'theme/app_theme.dart';
-import 'screens/auth_service.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-final FirebaseDatabase _database = FirebaseDatabase.instance;
 
 /// Maneja mensajes cuando la app está cerrada o en segundo plano
 @pragma('vm:entry-point')
