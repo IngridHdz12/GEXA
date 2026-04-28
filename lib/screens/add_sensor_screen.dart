@@ -324,7 +324,7 @@ class _AddSensorScreenState extends State<AddSensorScreen> {
           Text(
             'Vinculando dispositivo...', 
             style: TextStyle(
-              color: Color(0xFF00698F), // Azul oscuro
+              color: Color(0xFF00698F), 
               fontSize: 20, 
               fontWeight: FontWeight.bold
             )
