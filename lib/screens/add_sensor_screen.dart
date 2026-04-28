@@ -131,7 +131,7 @@ class _AddSensorScreenState extends State<AddSensorScreen> {
       await _gexaDevice?.disconnect();
       setState(() { _currentStep = 1; }); // Regresar al formulario si falla
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error Bluetooth: $e')),
+        SnackBar(content: Text('Error Bluetooth')),
       );
     }
   }
@@ -319,11 +319,18 @@ class _AddSensorScreenState extends State<AddSensorScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(color: Colors.white),
+          CircularProgressIndicator(color: Color(0xFF00698F)),
           SizedBox(height: 20),
-          Text('Vinculando dispositivo...', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+          Text(
+            'Vinculando dispositivo...', 
+            style: TextStyle(
+              color: Color(0xFF00698F), // Azul oscuro
+              fontSize: 20, 
+              fontWeight: FontWeight.bold
+            )
+          ),
           SizedBox(height: 10),
-          Text('Enviando credenciales y conectando a Firebase.\nEsto puede tardar unos segundos.', textAlign: TextAlign.center, style: TextStyle(color: Colors.white70)),
+          Text('Enviando credenciales y conectando a Firebase.\nEsto puede tardar unos segundos.', textAlign: TextAlign.center, style: TextStyle(color: Colors.black54)),
         ],
       ),
     );
